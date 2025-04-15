@@ -2,6 +2,33 @@ import os
 import django
 from django.core.files import File
 from pathlib import Path
+import psycopg2
+from psycopg2 import Error
+
+try:
+    # Kết nối đến PostgreSQL server với database mặc định postgres
+    connection = psycopg2.connect(
+        user="postgres",
+        password="123",
+        host="localhost",
+        port="5432",
+        database="postgres"
+    )
+    connection.autocommit = True
+    cursor = connection.cursor()
+
+    # Tạo database spotify_clone
+    sql_create_database = "CREATE DATABASE spotify_clone"
+    cursor.execute(sql_create_database)
+    print("Database created successfully!")
+
+except (Exception, Error) as error:
+    print("Error while connecting to PostgreSQL", error)
+finally:
+    if connection:
+        cursor.close()
+        connection.close()
+        print("PostgreSQL connection is closed")
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'spotify_backend.settings')
 django.setup()
