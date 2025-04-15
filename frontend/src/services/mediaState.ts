@@ -11,6 +11,12 @@ interface MediaState {
 interface MediaContextType {
   state: MediaState;
   setState: React.Dispatch<React.SetStateAction<MediaState>>;
+  play: (media: Media) => void;
+  pause: () => void;
+  next: () => void;
+  previous: () => void;
+  setVolume: (volume: number) => void;
+  setProgress: (progress: number) => void;
 }
 
 const defaultState: MediaState = {
@@ -24,7 +30,7 @@ export const MediaContext = createContext<MediaContextType>({
   setState: () => {}
 });
 
-export const useMediaContext = () => {
+export const useMediaState = () => {
   const context = useContext(MediaContext);
   if (!context) {
     throw new Error('useMediaContext must be used within a MediaProvider');

@@ -8,11 +8,11 @@ from psycopg2 import Error
 try:
     # Kết nối đến PostgreSQL server với database mặc định postgres
     connection = psycopg2.connect(
-        user="postgres",
-        password="123",
-        host="localhost",
-        port="5432",
-        database="postgres"
+        user=os.getenv("DB_USER", "postgres"),
+        password=os.getenv("DB_PASSWORD", "123"),
+        host=os.getenv("DB_HOST", "localhost"),
+        port=os.getenv("DB_PORT", "5432"),
+        database=os.getenv("DB_NAME", "postgres")
     )
     connection.autocommit = True
     cursor = connection.cursor()

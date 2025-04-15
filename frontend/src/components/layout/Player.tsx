@@ -8,6 +8,7 @@ import VolumeUpIcon from '@material-ui/icons/VolumeUp';
 import ShuffleIcon from '@material-ui/icons/Shuffle';
 import RepeatIcon from '@material-ui/icons/Repeat';
 import { useMediaState } from '../../services/mediaState';
+import { mediaApi } from '../../services/api';
 
 interface ProgressBarProps {
   width: number;
@@ -105,9 +106,10 @@ const Player: React.FC = () => {
     next,
     previous,
     setVolume,
-    setProgress
+    setProgress,
+    setState
   } = useMediaState();
-  
+
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
@@ -142,6 +144,27 @@ const Player: React.FC = () => {
     setVolume(newVolume);
     if (audioRef.current) {
       audioRef.current.volume = newVolume;
+    }
+  };
+
+  const play = async (media: Media) => {
+    if (media.type === 'song') {
+      try {
+        const response = await mediaApi.getSong(media.id);
+        setState((prevState: any) => ({
+          ...prevState,
+          currentMedia: response.data,
+          isPlaying: true
+        }));
+      } catch (error) {
+        console.error("Error fetching song details:", error);
+      }
+    } else {
+      setState((prevState: any) => ({
+        ...prevState,
+        currentMedia: media,
+        isPlaying: true
+      }));
     }
   };
 

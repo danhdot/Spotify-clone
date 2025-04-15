@@ -6,6 +6,8 @@ import SearchIcon from '@material-ui/icons/Search';
 import LibraryMusicIcon from '@material-ui/icons/LibraryMusic';
 import AddBoxIcon from '@material-ui/icons/AddBox';
 import FavoriteIcon from '@material-ui/icons/Favorite';
+import { mediaApi } from '../../services/api'; // Import API service
+import { useNavigate } from 'react-router-dom'; // To potentially navigate after creation
 
 interface NavItemProps {
   active?: boolean;
@@ -77,6 +79,25 @@ const CreatePlaylistButton = styled.button`
 
 const Sidebar: React.FC = () => {
   const location = useLocation();
+  const navigate = useNavigate(); // Hook for navigation
+
+  const handleCreatePlaylist = async () => {
+    const name = window.prompt("Enter the name for your new playlist:");
+    if (name && name.trim() !== '') {
+      try {
+        const response = await mediaApi.createPlaylist(name.trim());
+        // Optional: Navigate to the new playlist page
+        // navigate(`/playlist/${response.data.id}`);
+        alert(`Playlist "${response.data.name}" created successfully!`);
+        // TODO: Refresh playlist list in sidebar or library view
+      } catch (error) {
+        console.error("Error creating playlist:", error);
+        alert("Failed to create playlist. Please try again.");
+      }
+    } else if (name !== null) { // Only alert if prompt wasn't cancelled
+        alert("Playlist name cannot be empty.");
+    }
+  };
 
   return (
     <SidebarContainer>
@@ -108,11 +129,14 @@ const Sidebar: React.FC = () => {
       <Divider />
 
       <PlaylistSection>
-        <CreatePlaylistButton>
+        {/* Add onClick handler */}
+        <CreatePlaylistButton onClick={handleCreatePlaylist}>
           <AddBoxIcon style={{ marginRight: '16px' }} />
           Create Playlist
         </CreatePlaylistButton>
-        <NavItemStyled to="/favorites" active={location.pathname === '/favorites'}>
+        {/* Note: The "Liked Songs" link here might be redundant if handled in Library */}
+        {/* Consider removing or linking to /library?tab=songs */}
+        <NavItemStyled to="/library" active={location.pathname === '/library' && location.search.includes('tab=songs')}>
           <Icon><FavoriteIcon /></Icon>
           Liked Songs
         </NavItemStyled>

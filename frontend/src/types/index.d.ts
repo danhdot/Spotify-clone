@@ -43,13 +43,16 @@ interface Window {
 }
 
 export interface Media {
-  id: string;
+  id: number;
   title: string;
   artist?: string;
   url: string;
   type: 'audio' | 'video';
-  thumbnail?: string;
+  thumbnail: string;
+  cover_image?: string;
   duration?: number;
+  audio_file: string;
+  video_file: string;
 }
 
 export interface Playlist {
@@ -59,6 +62,8 @@ export interface Playlist {
   items: Media[];
   createdAt: string;
   updatedAt: string;
+  songs?: Media[];
+  videos?: Media[];
 }
 
 declare interface Album {
