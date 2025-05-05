@@ -4,14 +4,29 @@ import os
 import sys
 
 
+def run_migrations():
+    """Run makemigrations and migrate automatically."""
+    from django.core.management import execute_from_command_line
+    print("Running makemigrations...")
+    execute_from_command_line(['manage.py', 'makemigrations'])
+    print("Running migrate...")
+    execute_from_command_line(['manage.py', 'migrate'])
+
+
 def main():
     """Run administrative tasks."""
-    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'spotify_backend.settings')
+    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'backend.settings')
     try:
         from django.core.management import execute_from_command_line
+        
+        # Check if migrations should be run automatically
+        if len(sys.argv) == 2 and sys.argv[1] == 'runserver':
+            run_migrations()
+            
     except ImportError as exc:
         raise ImportError(
-            "Couldn't import Django. Are you sure it's installed? Did you "
+            "Couldn't import Django. Are you sure it's installed and "
+            "available on your PYTHONPATH environment variable? Did you "
             "forget to activate a virtual environment?"
         ) from exc
     execute_from_command_line(sys.argv)

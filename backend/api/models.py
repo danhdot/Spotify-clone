@@ -1,53 +1,55 @@
 from django.db import models
 from django.contrib.auth.models import User
-
-class Song(models.Model):
-    title = models.CharField(max_length=200)
-    artist = models.CharField(max_length=200)
-    audio_file = models.FileField(upload_to='songs/')
-    cover_image = models.ImageField(upload_to='covers/', null=True, blank=True)
-    duration = models.IntegerField(default=0)
-    created_at = models.DateTimeField(auto_now_add=True)
+    
+# Model Nghệ sĩ (Artist)
+class Artist(models.Model):
+    name = models.CharField(max_length=100, unique=True)
 
     def __str__(self):
-        return f"{self.title} - {self.artist}"
+        return self.name
 
-class Video(models.Model):
-    title = models.CharField(max_length=200)
-    artist = models.CharField(max_length=200)
-    video_file = models.FileField(upload_to='videos/')
-    thumbnail = models.ImageField(upload_to='thumbnails/', null=True, blank=True)
-    duration = models.IntegerField(default=0)
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    def __str__(self):
-        return f"{self.title} - {self.artist}"
-
+# Model Album
 class Album(models.Model):
-    title = models.CharField(max_length=200)
-    artist = models.CharField(max_length=200)
-    cover_image = models.ImageField(upload_to='album_covers/', null=True, blank=True)
-    songs = models.ManyToManyField(Song, related_name='albums')
-    created_at = models.DateTimeField(auto_now_add=True)
+    title = models.CharField(max_length=100)
+    artist = models.ForeignKey(Artist, on_delete=models.CASCADE)
+    release_date = models.DateField(null=True, blank=True)
+    image = models.ImageField(upload_to='album_covers/', blank=True, null=True)
 
     def __str__(self):
-        return f"{self.title} - {self.artist}"
+        return self.title
 
+
+# Model Bài hát (Song)
+class Song(models.Model):
+    title = models.CharField(max_length=100)
+    image = models.ImageField(upload_to='songs/', blank=True, null=True) 
+    artists = models.ManyToManyField(Artist)
+    album = models.ForeignKey(Album, on_delete=models.SET_NULL, null=True, blank=True)
+    duration = models.DurationField()
+    audio_file = models.FileField(upload_to='album_covers/', default='')
+    video_file = models.FileField(upload_to='song_videos/', blank=True, null=True)
+
+    def __str__(self):
+        return self.title
+
+# Model Playlist
 class Playlist(models.Model):
-    name = models.CharField(max_length=200)
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='playlists')
-    songs = models.ManyToManyField(Song, related_name='playlists')
-    videos = models.ManyToManyField(Video, related_name='playlists')
-    created_at = models.DateTimeField(auto_now_add=True)
+    name = models.CharField(max_length=100)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    songs = models.ManyToManyField(Song)
+    created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
 
     def __str__(self):
-        return f"{self.name} - {self.user.username}"
+        return self.name
 
-class Favorite(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='favorites')
-    songs = models.ManyToManyField(Song, related_name='favorited_by', blank=True)
-    videos = models.ManyToManyField(Video, related_name='favorited_by', blank=True)
-    albums = models.ManyToManyField(Album, related_name='favorited_by', blank=True)
+class Message(models.Model):
+    sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sent_messages')
+    receiver = models.ForeignKey(User, on_delete=models.CASCADE, related_name='received_messages')
+    content = models.TextField()
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['timestamp']
 
     def __str__(self):
-        return f"Favorites - {self.user.username}"
+        return f'{self.sender} to {self.receiver}: {self.content}'
